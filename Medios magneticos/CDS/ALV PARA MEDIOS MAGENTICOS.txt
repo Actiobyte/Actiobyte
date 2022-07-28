@@ -1,0 +1,90 @@
+&---------------------------------------------------------------------
+& Report zfica_reportesmm_cds
+&---------------------------------------------------------------------
+&
+&---------------------------------------------------------------------
+REPORT zfica_reportesmm_cds.
+
+TYPE-POOLS SLIS.
+
+
+PARAMETERS p_fecha1 TYPE BUDAT,
+p_fecha2 TYPE BUDAT,
+p_bukrs1 TYPE BUKRS.
+DATA gt_fieldcat TYPE slis_t_fieldcat_alv.
+DATA wa_fieldcat  TYPE slis_fieldcat_alv.
+DATA gt_layout TYPE slis_layout_alv.
+
+
+SELECT  FROM zcds_reportesmagneticos1006_2( p_fecha1 = @p_fecha1,p_fecha2 = @p_fecha2,p_bukrs1 = @p_bukrs1 )  INTO TABLE @DATA(lt_final) .
+
+
+
+
+form build_alv.
+  wa_fieldcat-fieldname  = 'NUMERO_DE_IDENTIFICACION'.
+  wa_fieldcat-seltext_m  = 'Numero de identificación.'.
+  APPEND wa_fieldcat TO gt_fieldcat.
+
+  clear wa_fieldcat.
+  wa_fieldcat-fieldname  = 'tipo_doc'.
+  wa_fieldcat-seltext_l  = 'Tipo de documento.'.
+  APPEND wa_fieldcat TO gt_fieldcat.
+
+  clear wa_fieldcat.
+  wa_fieldcat-fieldname  = 'Pape'.
+  wa_fieldcat-seltext_m  = 'Primer apellido.'.
+  APPEND wa_fieldcat TO gt_fieldcat.
+
+  clear wa_fieldcat.
+  wa_fieldcat-fieldname  = 'sape'.
+  wa_fieldcat-seltext_m  = 'Segundo apellido.'.
+  APPEND wa_fieldcat TO gt_fieldcat.
+
+  clear wa_fieldcat.
+  wa_fieldcat-fieldname  = 'Prinom'.
+  wa_fieldcat-seltext_m  = 'Primer nombre.'.
+  APPEND wa_fieldcat TO gt_fieldcat.
+
+  clear wa_fieldcat.
+  wa_fieldcat-fieldname  = 'otrnom'.
+  wa_fieldcat-seltext_l  = 'Otros nombres.'.
+  APPEND wa_fieldcat TO gt_fieldcat.
+
+  clear wa_fieldcat.
+  wa_fieldcat-fieldname  = 'otrnom'.
+  wa_fieldcat-seltext_l  = 'Otros nombres.'.
+  APPEND wa_fieldcat TO gt_fieldcat.
+
+  clear wa_fieldcat.
+  wa_fieldcat-fieldname  = 'SUM_IMPUESTOS'.
+  wa_fieldcat-seltext_l  = 'Suma de los impuestos'.
+  APPEND wa_fieldcat TO gt_fieldcat.
+
+
+endform.
+
+
+FORM show_alv.
+gt_layout-zebra = 'X'.
+gt_layout-colwidth_optimize = 'X'.
+CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+ EXPORTING
+
+   IS_LAYOUT                         = gt_LAYOUT
+   IT_FIELDCAT                       = gt_fieldcat
+
+  TABLES
+    T_OUTTAB                          = lt_final
+EXCEPTIONS
+   PROGRAM_ERROR                     = 1
+   OTHERS                            = 2
+          .
+IF SY-SUBRC  0.
+ Implement suitable error handling here
+ENDIF.
+endform.
+
+START-OF-SELECTION.
+  perform build_alv.
+  perform show_alv.
